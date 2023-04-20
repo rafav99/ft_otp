@@ -23,6 +23,7 @@ print(unix_time)
 #change time and key to bytes
 unix_time_b = int.to_bytes(unix_time, length=5, byteorder='big', signed=False)
 key_b = bytes.fromhex(key)
+total_b = key_b + unix_time_b
+hashkey = hashlib.sha256(total_b).hexdigest()
 
-print(unix_time_b)
-print(key_b)
+print(hashkey)

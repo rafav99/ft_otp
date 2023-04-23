@@ -27,3 +27,9 @@ total_b = key_b + unix_time_b
 hashkey = hashlib.sha256(total_b).hexdigest()
 
 print(hashkey)
+trunc_hk = hashkey[10:18]
+print(trunc_hk)
+int_trunc = int(trunc_hk, 16)
+print(int_trunc)
+finalpass =int_trunc % pow(10,6)
+print(finalpass)

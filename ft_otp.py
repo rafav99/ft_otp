@@ -16,17 +16,18 @@ if args.savekey:
     try:
         f = open(args.savekey, 'r')
         hexkey = f.read().strip()
-        if len(hexkey) < 64:
-            raise Exception("Key has to be at least 64 characters.")
-        else:
+        hexcad = 'abcdef123456789ABCDEF'
+        if len(hexkey) >= 64 and all(c in hexcad for c in hexkey):
             with open('ft_otp.key', 'w') as f:
                 f.write(hexkey)
+        else:
+            print("Key has to be at least 64 hexadecimal characters")
     except:
         print("could not open file")
 
 if args.genpass:
     try:
-        f = open(args.genpass, 'r')
+        f = open('ft_otp.key', 'r')
         key = f.read().strip()
     except:
         print("could not open file")
@@ -51,10 +52,9 @@ if args.genpass:
     passwdno_0 = str(h)
 
     while len(passwdno_0) < 6:
-        passwdno_0 += '0'
+        passwdno_0 = '0' + passwdno_0
 
-    print(h)
-
+    print(passwdno_0)
 
 
 

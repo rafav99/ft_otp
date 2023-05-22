@@ -4,33 +4,45 @@ import argparse
 import base64
 import hmac
 import struct
+from cryptography.fernet import Fernet
 
 #parsing
 parser = argparse.ArgumentParser(description='Generate TOTP key')
 
 parser.add_argument('-g', '--savekey', type=str)
 parser.add_argument('-k', '--genpass', type=str)
-args = parser.parse_args()	
+args = parser.parse_args()    
+
 
 if args.savekey:
+    cryptkey = Fernet.generate_key()
+    with open('cript.key', 'wb') as keyfile:
+        keyfile.write(cryptkey)
+    fernet = Fernet(cryptkey)
     try:
-        f = open(args.savekey, 'r')
-        hexkey = f.read().strip()
-        hexcad = 'abcdef123456789ABCDEF'
-        if len(hexkey) >= 64 and all(c in hexcad for c in hexkey):
-            with open('ft_otp.key', 'w') as f:
-                f.write(hexkey)
-        else:
-            print("Key has to be at least 64 hexadecimal characters")
+        with open(args.savekey, 'rb') as hkeyfile:
+            hexkey = hkeyfile.read().strip()
     except:
-        print("could not open file")
+        print("Could not open file")
+    hexcad = 'abcdef123456789ABCDEF'
+    ncryptkey = fernet.encrypt(hexkey)
+    if len(hexkey) >= 64:
+        with open('ft_otp.key', 'wb') as f:
+            f.write(ncryptkey)
+            print("Key was succesfully saved in ft_otp.key")
+    else:
+        print("Key has to be at least 64 hexadecimal characters")
 
 if args.genpass:
     try:
-        f = open('ft_otp.key', 'r')
-        key = f.read().strip()
+        with open('ft_otp.key', 'rb') as otpkeyfile:
+            rawkey = otpkeyfile.read()
+        with open('cript.key', 'rb') as keyfile:
+            criptkey = keyfile.read()
+        fernet = Fernet(criptkey)
+        key = fernet.decrypt(rawkey)
     except:
-        print("could not open file")
+        print("could not open files")
 
     #get unix timestamp, divided by 30 so changes not every
     #second but every 30 seconds
@@ -38,7 +50,7 @@ if args.genpass:
 
     #change time and key to bytes
     unix_time_b = unix_time.to_bytes(length=8, byteorder='big', signed=False)
-    key_b = bytes.fromhex(key)
+    key_b = bytes.fromhex(key.decode())
 
     #hash algorithm
     h = hmac.new(key_b, unix_time_b, hashlib.sha1).digest()

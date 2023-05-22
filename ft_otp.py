@@ -22,16 +22,16 @@ if args.savekey:
     try:
         with open(args.savekey, 'rb') as hkeyfile:
             hexkey = hkeyfile.read().strip()
+        bytes.fromhex(hexkey.decode())
+        ncryptkey = fernet.encrypt(hexkey)
+        if len(hexkey) >= 64:
+            with open('ft_otp.key', 'wb') as f:
+                f.write(ncryptkey)
+                print("Key was succesfully saved in ft_otp.key")
+        else:
+            print("Key has to be at least 64 hexadecimal characters")
     except:
-        print("Could not open file")
-    hexcad = 'abcdef123456789ABCDEF'
-    ncryptkey = fernet.encrypt(hexkey)
-    if len(hexkey) >= 64:
-        with open('ft_otp.key', 'wb') as f:
-            f.write(ncryptkey)
-            print("Key was succesfully saved in ft_otp.key")
-    else:
-        print("Key has to be at least 64 hexadecimal characters")
+        print("Could not open file or wrong key format")
 
 if args.genpass:
     try:
